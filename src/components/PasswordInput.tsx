@@ -7,6 +7,12 @@ interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement>
 export function PasswordInput({ className, ...props }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
+  const togglePasswordVisibility = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <div style={{ position: "relative", width: "100%" }}>
       <input
@@ -17,7 +23,7 @@ export function PasswordInput({ className, ...props }: PasswordInputProps) {
       />
       <button
         type="button"
-        onClick={() => setShowPassword(!showPassword)}
+        onClick={togglePasswordVisibility}
         style={{
           position: "absolute",
           right: "10px",

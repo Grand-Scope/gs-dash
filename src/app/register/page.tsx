@@ -13,6 +13,7 @@ export default function RegisterPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    console.log("Form submitted");
     setError(null);
     setLoading(true);
 
@@ -29,7 +30,10 @@ export default function RegisterPage() {
       return;
     }
 
+
+
     try {
+      console.log("Sending registration request...");
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
@@ -101,6 +102,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    if (task.projectId) {
+        revalidatePath(`/dashboard/projects/${task.projectId}`);
+    }
+    
     return NextResponse.json(task);
   } catch (error) {
     console.error("Error updating task:", error);
@@ -128,6 +133,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     await prisma.task.delete({ where: { id } });
+
+    if (task.projectId) {
+        revalidatePath(`/dashboard/projects/${task.projectId}`);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
