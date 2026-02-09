@@ -50,10 +50,11 @@ export default function RegisterPage() {
 
       router.push("/login?registered=true");
     } catch (err) {
+      console.error("Registration error on client:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Something went wrong");
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

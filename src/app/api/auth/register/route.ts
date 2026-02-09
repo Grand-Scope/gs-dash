@@ -13,6 +13,8 @@ const registerSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    console.log("Registration attempt for:", body.email, body.username);
+    
     const { name, username, email, password } = registerSchema.parse(body);
 
     const existingUser = await prisma.user.findFirst({
@@ -23,11 +25,13 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       if (existingUser.email === email) {
+        console.warn("Registration failed: Email already exists", email);
         return NextResponse.json(
           { error: "User with this email already exists" },
           { status: 400 }
         );
       }
+      console.warn("Registration failed: Username already exists", username);
       return NextResponse.json(
         { error: "User with this username already exists" },
         { status: 400 }
@@ -47,19 +51,26 @@ export async function POST(req: Request) {
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
-
+    
+    console.log("User registered successfully:", user.id);
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Registration error details:", error);
+    
     if (error instanceof z.ZodError) {
+      const errorMessage = error.issues[0].message;
+      console.warn("Registration validation failed:", errorMessage);
       return NextResponse.json(
-        { error: error.issues[0].message },
+        { error: errorMessage },
         { status: 400 }
       );
     }
 
+    // Log the full error object for debugging in production
+    console.error("Unexpected registration error:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "Registration failed. Please check server logs for details." },
       { status: 500 }
     );
   }
