@@ -1,4 +1,5 @@
 import { signIn, auth } from "@/lib/auth";
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -65,7 +66,14 @@ export default async function LoginPage({
         <form
           action={async (formData) => {
             "use server";
-            await signIn("credentials", formData);
+            try {
+              await signIn("credentials", formData);
+            } catch (error) {
+              if (error instanceof AuthError) {
+                redirect(`/login?error=${error.type}`);
+              }
+              throw error;
+            }
           }}
           className="login-form"
         >
