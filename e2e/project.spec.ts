@@ -1,4 +1,29 @@
 import { test, expect } from '@playwright/test';
+import { PrismaClient } from '@prisma/client';
+
+const testEmails: string[] = [];
+
+test.afterAll(async () => {
+  if (testEmails.length === 0) return;
+  const prisma = new PrismaClient();
+  try {
+    const testUsers = await prisma.user.findMany({
+      where: { email: { in: testEmails } },
+      select: { id: true },
+    });
+    const ids = testUsers.map((u) => u.id);
+    if (ids.length > 0) {
+      await prisma.task.deleteMany({ where: { OR: [{ creatorId: { in: ids } }, { assigneeId: { in: ids } }] } });
+      await prisma.milestone.deleteMany({ where: { project: { ownerId: { in: ids } } } });
+      await prisma.project.deleteMany({ where: { ownerId: { in: ids } } });
+      await prisma.session.deleteMany({ where: { userId: { in: ids } } });
+      await prisma.account.deleteMany({ where: { userId: { in: ids } } });
+      await prisma.user.deleteMany({ where: { id: { in: ids } } });
+    }
+  } finally {
+    await prisma.$disconnect();
+  }
+});
 
 test.describe('Project Management Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,6 +31,7 @@ test.describe('Project Management Flow', () => {
     const timestamp = Date.now();
     const username = `user${timestamp}`;
     const email = `user${timestamp}@example.com`;
+    testEmails.push(email);
     const password = 'Password@123';
 
     await page.goto('/register');

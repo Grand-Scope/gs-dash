@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { notifyAllTeamMembers } from "@/lib/notifications";
 
-// GET all projects for the current user
+// GET all projects (access filters removed)
 export async function GET() {
   try {
     const session = await auth();
@@ -13,12 +14,6 @@ export async function GET() {
     }
 
     const projects = await prisma.project.findMany({
-      where: {
-        OR: [
-          { ownerId: session.user.id },
-          { members: { some: { id: session.user.id } } },
-        ],
-      },
       orderBy: { updatedAt: "desc" },
       include: {
         owner: { select: { id: true, name: true, image: true } },
@@ -64,6 +59,15 @@ export async function POST(request: NextRequest) {
         _count: { select: { tasks: true } },
       },
     });
+
+    // Notify team
+    await notifyAllTeamMembers(
+      session.user.id,
+      "PROJECT_CREATED",
+      "New Project Created",
+      `${session.user.name} created project "${project.name}"`,
+      `/dashboard/projects/${project.id}`
+    );
 
     revalidatePath("/dashboard/projects");
     return NextResponse.json(project, { status: 201 });

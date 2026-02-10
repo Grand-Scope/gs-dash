@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { createNotification } from "@/lib/notifications";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -22,6 +23,7 @@ async function verifyTaskAccess(taskId: string, userId: string) {
 
   if (!task) return { task: null, hasAccess: false };
 
+  // For write operations we maintain access control
   const hasAccess =
     task.creatorId === userId ||
     task.assigneeId === userId ||
@@ -101,6 +103,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         assignee: { select: { id: true, name: true, image: true } },
       },
     });
+
+    // Notify new assignee if changed
+    if (assigneeId && assigneeId !== existingTask.assigneeId && assigneeId !== session.user.id) {
+       await createNotification(
+        assigneeId,
+        "TASK_ASSIGNED",
+        "Task Assigned",
+        `${session.user.name} assigned you to task "${task.title}"`,
+        `/dashboard/projects/${task.projectId}?task=${task.id}`
+      );
+    }
 
     if (task.projectId) {
         revalidatePath(`/dashboard/projects/${task.projectId}`);

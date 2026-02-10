@@ -17,24 +17,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ projects: [], tasks: [] });
     }
 
-    const accessFilter = {
-      OR: [
-        { ownerId: session.user.id },
-        { members: { some: { id: session.user.id } } },
-      ],
-    };
-
     const [projects, tasks] = await Promise.all([
       prisma.project.findMany({
         where: {
-          AND: [
-            accessFilter,
-            {
-              OR: [
-                { name: { contains: q, mode: "insensitive" as const } },
-                { description: { contains: q, mode: "insensitive" as const } },
-              ],
-            },
+          OR: [
+            { name: { contains: q, mode: "insensitive" as const } },
+            { description: { contains: q, mode: "insensitive" as const } },
           ],
         },
         select: {
@@ -47,14 +35,9 @@ export async function GET(request: NextRequest) {
       }),
       prisma.task.findMany({
         where: {
-          AND: [
-            { project: accessFilter },
-            {
-              OR: [
-                { title: { contains: q, mode: "insensitive" as const } },
-                { description: { contains: q, mode: "insensitive" as const } },
-              ],
-            },
+          OR: [
+            { title: { contains: q, mode: "insensitive" as const } },
+            { description: { contains: q, mode: "insensitive" as const } },
           ],
         },
         select: {

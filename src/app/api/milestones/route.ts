@@ -11,14 +11,6 @@ export async function GET() {
     }
 
     const milestones = await prisma.milestone.findMany({
-      where: {
-        project: {
-          OR: [
-            { ownerId: session.user.id },
-            { members: { some: { id: session.user.id } } },
-          ],
-        },
-      },
       include: {
         project: { select: { id: true, name: true } },
       },

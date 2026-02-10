@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { createNotification, notifyAllTeamMembers } from "@/lib/notifications";
 
-// GET all tasks
+// GET all tasks (access filters removed)
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -15,16 +16,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    const whereClause = projectId
-      ? { projectId }
-      : {
-          OR: [
-            { creatorId: session.user.id },
-            { assigneeId: session.user.id },
-            { project: { ownerId: session.user.id } },
-            { project: { members: { some: { id: session.user.id } } } },
-          ],
-        };
+    const whereClause = projectId ? { projectId } : {};
 
     const tasks = await prisma.task.findMany({
       where: whereClause,
@@ -65,13 +57,16 @@ export async function POST(request: NextRequest) {
     // Verify project access
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { ownerId: true, members: { select: { id: true } } },
+      select: { name: true, ownerId: true, members: { select: { id: true } } },
     });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // Access check still applies for CREATION - you should probably still own/be member to create?
+    // User requested "seeing" data. Creating data might still be restricted?
+    // Existing code restricted it. I'll keep restriction for creation.
     const hasAccess =
       project.ownerId === session.user.id ||
       project.members.some((m) => m.id === session.user.id);
@@ -97,6 +92,26 @@ export async function POST(request: NextRequest) {
         assignee: { select: { id: true, name: true, image: true } },
       },
     });
+
+    // Notify assignee if assigned
+    if (task.assigneeId && task.assigneeId !== session.user.id) {
+      await createNotification(
+        task.assigneeId,
+        "TASK_ASSIGNED",
+        "New Task Assigned",
+        `You have been assigned to task "${task.title}"`,
+        `/dashboard/projects/${projectId}?task=${task.id}`
+      );
+    }
+
+    // Notify team about new task
+    await notifyAllTeamMembers(
+      session.user.id,
+      "TASK_CREATED",
+      "New Task Created",
+      `${session.user.name} created task "${task.title}" in ${project.name}`,
+      `/dashboard/projects/${projectId}?task=${task.id}`
+    );
 
     revalidatePath(`/dashboard/projects/${projectId}`);
     return NextResponse.json(task, { status: 201 });

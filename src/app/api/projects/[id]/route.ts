@@ -39,15 +39,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Check access
-    const hasAccess =
-      project.ownerId === session.user.id ||
-      project.members.some((m) => m.id === session.user.id);
-
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
     return NextResponse.json(project);
   } catch (error) {
     console.error("Error fetching project:", error);

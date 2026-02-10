@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: string;
   title: string;
   message: string;
-  time: string;
+  createdAt: string;
   read: boolean;
-  type: "info" | "success" | "warning" | "error";
+  type: string;
+  linkUrl?: string | null;
 }
 
 interface NotificationPanelProps {
@@ -16,63 +18,93 @@ interface NotificationPanelProps {
   onClose: () => void;
 }
 
-// Sample notifications - in production, these would come from an API
-const sampleNotifications: Notification[] = [
-  {
-    id: "1",
-    title: "New Project Created",
-    message: "Website Redesign project has been created successfully.",
-    time: "2 minutes ago",
-    read: false,
-    type: "success",
-  },
-  {
-    id: "2",
-    title: "Task Assigned",
-    message: "You have been assigned to 'Design Homepage' task.",
-    time: "1 hour ago",
-    read: false,
-    type: "info",
-  },
-  {
-    id: "3",
-    title: "Deadline Approaching",
-    message: "Project 'Mobile App' deadline is in 2 days.",
-    time: "3 hours ago",
-    read: true,
-    type: "warning",
-  },
-  {
-    id: "4",
-    title: "Comment Added",
-    message: "John added a comment on your task.",
-    time: "5 hours ago",
-    read: true,
-    type: "info",
-  },
-];
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 export default function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+    }
+  }, [isOpen]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  const markAllAsRead = async () => {
+    try {
+      await fetch("/api/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markAll: true }),
+      });
+      setNotifications(notifications.map((n) => ({ ...n, read: true })));
+    } catch (error) {
+      console.error("Failed to mark all as read", error);
+    }
   };
 
   const clearAll = () => {
+    // For now, clear all just clears the list locally or strictly hides them?
+    // User requested "Clear all", let's assume it clears the view.
     setNotifications([]);
   };
 
-  const markAsRead = (id: string) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.read) {
+      try {
+        await fetch("/api/notifications", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: [notification.id] }),
+        });
+        setNotifications(
+          notifications.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+        );
+      } catch (error) {
+        console.error("Failed to mark as read", error);
+      }
+    }
+
+    if (notification.linkUrl) {
+      onClose();
+      router.push(notification.linkUrl);
+    }
   };
 
-  const getTypeIcon = (type: Notification["type"]) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
+      case "PROJECT_CREATED":
+      case "TASK_CREATED":
       case "success":
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -80,6 +112,7 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         );
+      case "DEADLINE":
       case "warning":
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -96,6 +129,7 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
             <line x1="9" y1="9" x2="15" y2="15" />
           </svg>
         );
+      case "TASK_ASSIGNED":
       default:
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -134,22 +168,24 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
         </div>
 
         <div className="panel-actions">
-          <button onClick={markAllAsRead} className="btn btn-ghost btn-sm" disabled={unreadCount === 0}>
+          <button onClick={markAllAsRead} className="btn btn-ghost btn-sm" disabled={unreadCount === 0 || loading}>
             Mark all as read
           </button>
-          <button onClick={clearAll} className="btn btn-ghost btn-sm" disabled={notifications.length === 0}>
+          <button onClick={clearAll} className="btn btn-ghost btn-sm" disabled={notifications.length === 0 || loading}>
             Clear all
           </button>
         </div>
 
         <div className="panel-content">
-          {notifications.length > 0 ? (
+          {loading && notifications.length === 0 ? (
+             <div className="p-4 text-center">Loading...</div>
+          ) : notifications.length > 0 ? (
             <div className="notification-list">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
                   className={`notification-item ${!notification.read ? "unread" : ""}`}
-                  onClick={() => markAsRead(notification.id)}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className={`notification-icon ${notification.type}`}>
                     {getTypeIcon(notification.type)}
@@ -157,7 +193,7 @@ export default function NotificationPanel({ isOpen, onClose }: NotificationPanel
                   <div className="notification-content">
                     <div className="notification-title">{notification.title}</div>
                     <div className="notification-message">{notification.message}</div>
-                    <div className="notification-time">{notification.time}</div>
+                    <div className="notification-time">{formatTimeAgo(notification.createdAt)}</div>
                   </div>
                   {!notification.read && <div className="notification-dot" />}
                 </div>

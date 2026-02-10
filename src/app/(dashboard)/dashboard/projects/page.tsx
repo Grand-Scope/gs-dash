@@ -9,12 +9,7 @@ export default async function ProjectsPage() {
   const user = session?.user;
 
   const projects = await prisma.project.findMany({
-    where: {
-      OR: [
-        { ownerId: user?.id },
-        { members: { some: { id: user?.id } } },
-      ],
-    },
+    where: {},
     orderBy: { updatedAt: "desc" },
     include: {
       owner: { select: { name: true, image: true } },

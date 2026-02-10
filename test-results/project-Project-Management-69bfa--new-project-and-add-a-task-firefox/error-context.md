@@ -1,0 +1,194 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e12]:
+      - button "Open issues overlay" [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: "0"
+          - generic [ref=e16]: "1"
+        - generic [ref=e17]: Issue
+      - button "Collapse issues badge" [ref=e18]:
+        - img [ref=e19]
+  - alert [ref=e21]
+  - generic [ref=e22]:
+    - complementary [ref=e23]:
+      - link "ProjectHub Logo" [ref=e25] [cursor=pointer]:
+        - /url: /dashboard
+        - img "ProjectHub Logo" [ref=e27]
+      - navigation [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: Main
+          - link "Dashboard" [ref=e31] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e32]
+            - text: Dashboard
+          - link "Projects" [ref=e37] [cursor=pointer]:
+            - /url: /dashboard/projects
+            - img [ref=e38]
+            - text: Projects
+          - link "Tasks" [ref=e40] [cursor=pointer]:
+            - /url: /dashboard/tasks
+            - img [ref=e41]
+            - text: Tasks
+          - link "Timeline" [ref=e44] [cursor=pointer]:
+            - /url: /dashboard/timeline
+            - img [ref=e45]
+            - text: Timeline
+          - link "Calendar" [ref=e52] [cursor=pointer]:
+            - /url: /dashboard/calendar
+            - img [ref=e53]
+            - text: Calendar
+        - generic [ref=e58]:
+          - generic [ref=e59]: Team
+          - link "Members" [ref=e60] [cursor=pointer]:
+            - /url: /dashboard/members
+            - img [ref=e61]
+            - text: Members
+      - generic [ref=e67]:
+        - generic [ref=e68]: TU
+        - generic [ref=e69]:
+          - generic [ref=e70]: Test User
+          - generic [ref=e71]: MEMBER
+        - button "User menu" [ref=e72] [cursor=pointer]:
+          - img [ref=e73]
+    - main [ref=e77]:
+      - generic [ref=e78]:
+        - heading "Projects" [level=1] [ref=e80]
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - img [ref=e83]
+            - textbox "Search projects, tasks..." [ref=e86]
+          - button "Switch to dark mode" [ref=e87] [cursor=pointer]:
+            - img [ref=e88]
+          - button "Notifications" [ref=e90] [cursor=pointer]:
+            - img [ref=e91]
+          - button "Settings" [ref=e95] [cursor=pointer]:
+            - img [ref=e96]
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - heading "All Projects" [level=2] [ref=e103]
+            - paragraph [ref=e104]: Manage and track all your team projects
+          - link "New Project" [ref=e105] [cursor=pointer]:
+            - /url: /dashboard/projects/new
+            - img [ref=e106]
+            - text: New Project
+        - generic [ref=e109]:
+          - link "PLANNING Test Project 1770751565579 This is a test project description Progress 0% — - — 0 1 T Test User" [ref=e110] [cursor=pointer]:
+            - /url: /dashboard/projects/cmlgzrjd6000mqezkmh12h02e
+            - generic [ref=e111]:
+              - img [ref=e113]
+              - generic [ref=e115]: PLANNING
+            - heading "Test Project 1770751565579" [level=3] [ref=e116]
+            - paragraph [ref=e117]: This is a test project description
+            - generic [ref=e119]:
+              - generic [ref=e120]: Progress
+              - generic [ref=e121]: 0%
+            - generic [ref=e123]:
+              - generic [ref=e124]:
+                - img [ref=e125]
+                - text: — - —
+              - generic [ref=e130]:
+                - generic "Tasks" [ref=e131]:
+                  - img [ref=e132]
+                  - text: "0"
+                - generic "Members" [ref=e135]:
+                  - img [ref=e136]
+                  - text: "1"
+            - generic [ref=e140]:
+              - generic [ref=e141]: T
+              - generic [ref=e142]: Test User
+          - link "IN PROGRESS Golper Dokan No description provided Progress 0% Feb 8, 2026 - — 2 1 I Ishraful" [ref=e143] [cursor=pointer]:
+            - /url: /dashboard/projects/cmlfpliou0004jp04nbgjrey8
+            - generic [ref=e144]:
+              - img [ref=e146]
+              - generic [ref=e148]: IN PROGRESS
+            - heading "Golper Dokan" [level=3] [ref=e149]
+            - paragraph [ref=e150]: No description provided
+            - generic [ref=e152]:
+              - generic [ref=e153]: Progress
+              - generic [ref=e154]: 0%
+            - generic [ref=e156]:
+              - generic [ref=e157]:
+                - img [ref=e158]
+                - text: Feb 8, 2026 - —
+              - generic [ref=e163]:
+                - generic "Tasks" [ref=e164]:
+                  - img [ref=e165]
+                  - text: "2"
+                - generic "Members" [ref=e168]:
+                  - img [ref=e169]
+                  - text: "1"
+            - generic [ref=e173]:
+              - generic [ref=e174]: I
+              - generic [ref=e175]: Ishraful
+    - generic [ref=e176]:
+      - generic [ref=e177]:
+        - heading "Notifications" [level=3] [ref=e179]
+        - button "Close" [ref=e180] [cursor=pointer]:
+          - img [ref=e181]
+      - generic [ref=e184]:
+        - button "Mark all as read" [disabled] [ref=e185]
+        - button "Clear all" [disabled] [ref=e186]
+      - generic [ref=e188]:
+        - img [ref=e189]
+        - paragraph [ref=e192]: No notifications
+        - generic [ref=e193]: You're all caught up!
+    - generic [ref=e194]:
+      - generic [ref=e195]:
+        - heading "Settings" [level=3] [ref=e196]
+        - button "Close" [ref=e197] [cursor=pointer]:
+          - img [ref=e198]
+      - generic [ref=e201]:
+        - generic [ref=e202]:
+          - heading "Appearance" [level=4] [ref=e203]
+          - generic [ref=e204]:
+            - generic [ref=e205]:
+              - generic [ref=e206]: Theme
+              - generic [ref=e207]: Choose your preferred theme
+            - generic [ref=e208]:
+              - button "Light theme" [ref=e209] [cursor=pointer]:
+                - img [ref=e210]
+                - generic [ref=e220]: Light
+              - button "Dark theme" [ref=e221] [cursor=pointer]:
+                - img [ref=e222]
+                - generic [ref=e224]: Dark
+        - generic [ref=e225]:
+          - heading "Notifications" [level=4] [ref=e226]
+          - generic [ref=e227]:
+            - generic [ref=e228]:
+              - generic [ref=e229]: Email notifications
+              - generic [ref=e230]: Receive email alerts for updates
+            - generic [ref=e231]:
+              - checkbox [checked]
+          - generic [ref=e233]:
+            - generic [ref=e234]:
+              - generic [ref=e235]: Push notifications
+              - generic [ref=e236]: Get browser push notifications
+            - generic [ref=e237]:
+              - checkbox [checked]
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - generic [ref=e241]: Task reminders
+              - generic [ref=e242]: Remind me before task deadlines
+            - generic [ref=e243]:
+              - checkbox [checked]
+        - generic [ref=e245]:
+          - heading "Account" [level=4] [ref=e246]
+          - generic [ref=e247]:
+            - generic [ref=e248]:
+              - generic [ref=e249]: Profile settings
+              - generic [ref=e250]: Manage your profile information
+            - button [ref=e251] [cursor=pointer]:
+              - img [ref=e252]
+          - generic [ref=e254]:
+            - generic [ref=e255]:
+              - generic [ref=e256]: Password
+              - generic [ref=e257]: Change your password
+            - button [ref=e258] [cursor=pointer]:
+              - img [ref=e259]
+```

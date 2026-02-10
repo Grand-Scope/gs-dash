@@ -9,20 +9,9 @@ export default async function DashboardPage() {
   const user = session?.user;
 
   // Fetch dashboard stats
-  const projectWhereClause = {
-    OR: [
-      { ownerId: user?.id },
-      { members: { some: { id: user?.id } } },
-    ],
-  };
+  const projectWhereClause = {};
 
-  const taskWhereClause = {
-    OR: [
-      { creatorId: user?.id },
-      { assigneeId: user?.id },
-      { project: { OR: [{ ownerId: user?.id }, { members: { some: { id: user?.id } } }] } },
-    ],
-  };
+  const taskWhereClause = {};
 
   const [projectCount, taskCount, memberCount, completedTasks] = await Promise.all([
     prisma.project.count({
